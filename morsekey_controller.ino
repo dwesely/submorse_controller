@@ -10,12 +10,11 @@
 
 #define KEY_SPACE 0x20
 
-const byte morsePin = 0; // Pin connected to morse key
-boolean pinging = false;
-boolean timerStarted = false;
-const unsigned long submissionDelay = 300;
-unsigned long releasedMillis = millis();
-Bounce morseButton = Bounce(morsePin, 5);
+const byte morsePin = 0;                   // Pin connected to morse key
+boolean timerStarted = false;              // Flag to start the countdown
+const unsigned long submissionDelay = 150; // Delay to send "e" indicating the end of the character in Submorse, ~150 to ~300 seems to work well
+unsigned long releasedMillis = millis();   // Reference time for the countdown
+Bounce morseButton = Bounce(morsePin, 5);  // Debounce the morse key
 
 void setup() {
   // put your setup code here, to run once:
@@ -31,10 +30,11 @@ void loop() {
 
   if (morseButton.fell())
   {
+    // Key is pressed, send spacebar
     digitalWrite(LED_BUILTIN, HIGH);
     Keyboard.press(KEY_SPACE);
 
-    // Startes keying, Reset timer
+    // Starts keying, Reset timer
     timerStarted = false;
   }
   if (morseButton.rose()) {
@@ -43,6 +43,7 @@ void loop() {
     timerStarted = true;
     releasedMillis = millis();
   }
+  
   if (timerStarted) {
     // check if timer is ready to drop the letter
     if (millis() - releasedMillis > submissionDelay) {
